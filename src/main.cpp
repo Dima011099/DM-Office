@@ -1,4 +1,4 @@
-#include "Widgets/AppWin/AppWin.h"
+#include "AppWin.h"
 #include <gtkmm.h>
 
 int main(int argc, char* argv[])
