@@ -1,13 +1,16 @@
 #include <gtkmm.h>
+#include<string>
 
-
-namespace MCustom
+namespace DM
 {
 
 class MHeaderBar : public Gtk::HeaderBar
 {
 public:
-MHeaderBar();
+MHeaderBar(); // Constructor for the MHeaderBar class
+
+protected:
+std::string css_style(); // Method to return CSS styles
 
 private:
 
