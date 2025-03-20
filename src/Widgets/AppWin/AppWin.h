@@ -1,6 +1,7 @@
 #include <gtkmm.h>
 
 #include "MHeaderBar.h"
+#include "EditTextView.h"
 
 class AppWin : public Gtk::Window
 {
@@ -15,4 +16,7 @@ Gtk::TextView text_view; // Text view for displaying and editing text
 Glib::RefPtr<Gtk::TextBuffer> text_buffer; // Reference pointer to the text buffer
 
 Gtk::Box vbox {Gtk::Orientation::VERTICAL};  // Vertical box for layout management
+
+DM_OFFICE::EditTextView editTextView;
+
 };
