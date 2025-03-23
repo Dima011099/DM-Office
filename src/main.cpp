@@ -1,10 +1,34 @@
-#include "AppWin.h" // Include the header file for the AppWin class
+// Сonnects the standard input/output stream for error handling
+#include <iostream>
 
-// Main function: entry point of the application
+// Application Window Class Header File
+#include "AppWin.h"
+
+// Unique identifier of the application by default
+constexpr auto DEFAULT_APP_ID = "org.dm.dmoffice";
+
+// DEFAULT_WIN_WIDTH and DEFAULT_WIN_HEIGHT set the default size of the main window.
+constexpr int DEFAULT_WIN_WIDTH = 940;
+constexpr int DEFAULT_WIN_HEIGHT = 640;
+
+
 int main(int argc, char* argv[])
 {
-    // Create a new GTK application with a unique application ID
-    auto app = Gtk::Application::create("org.dm.dmoffice");
-    // Run the application, creating an instance of AppWin as the main window
-    return app->make_window_and_run<AppWin>(argc, argv);
+    try
+    {
+        // Сreating an instance of a GTK application
+        auto app = Gtk::Application::create(DEFAULT_APP_ID);
+
+        // An AppWin window is created and the event loop is started
+        return app->make_window_and_run<AppWin>(
+            argc, 
+            argv,
+            DEFAULT_WIN_WIDTH,
+            DEFAULT_WIN_HEIGHT
+        );
+    }catch (const std::exception& e)
+    {
+        std::cerr << "Error: " << e.what() << std::endl;
+        return 1;
+    }
 }

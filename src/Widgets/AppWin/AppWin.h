@@ -6,7 +6,7 @@
 class AppWin : public Gtk::Window
 {
 public:
-AppWin(); // Constructor for the AppWin class
+AppWin(int, int); // Constructor for the AppWin class
 
 private:
 DM::MHeaderBar header_bar; // Header bar for the application window

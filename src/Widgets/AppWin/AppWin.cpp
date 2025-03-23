@@ -1,16 +1,9 @@
 #include "AppWin.h"
 
-AppWin::AppWin()
+AppWin::AppWin(int width, int height)
 {
     // Set the default window size
-    set_default_size(920, 540);
-
-/*
-    text_view.set_wrap_mode(Gtk::WrapMode::WORD);
-    text_buffer = Gtk::TextBuffer::create();
-    text_view.get_style_context()->add_provider(css_provider, GTK_STYLE_PROVIDER_PRIORITY_APPLICATION);
-    text_view.set_buffer(text_buffer);
-    */
+    set_default_size(width, height);
 
     // Set up the ScrolledWindow with the TextView
     scrolled_window.set_child(this->editTextView);
