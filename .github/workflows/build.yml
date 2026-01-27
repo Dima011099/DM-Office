@@ -1,0 +1,53 @@
+name: CMake Build
+
+on: [push, pull_request]
+
+jobs:
+  build:
+    name: Build on ${{ matrix.os }}
+    runs-on: ${{ matrix.os }}
+    strategy:
+      matrix:
+        os: [ubuntu-latest, windows-latest]
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Install dependencies (Linux)
+        if: runner.os == 'Linux'
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y libgtkmm-4.0-dev pkg-config cmake
+
+      - name: Restore vcpkg and cache
+        if: runner.os == 'Windows'
+        uses: actions/cache@v3
+        with:
+          path: |
+            C:/vcpkg/installed
+            C:/Users/runneradmin/AppData/Local/vcpkg/archives
+          key: ${{ runner.os }}-vcpkg-gtkmm4
+          restore-keys: ${{ runner.os }}-vcpkg-
+
+      - name: Install vcpkg (Windows)
+        if: runner.os == 'Windows'
+        run: vcpkg install gtkmm[core]:x64-windows --recurse
+
+      - name: Configure CMake
+        run: >
+          cmake -S . -B build 
+          ${{ runner.os == 'Windows' && '-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows' || '' }}
+
+      - name: Build
+        run: cmake --build build --config Release
+
+      - name: Upload Build Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: DM-Office-${{ matrix.os }}
+          path: |
+            build/dmoffice
+            build/Release/dmoffice.exe
+          if-no-files-found: warn
+
