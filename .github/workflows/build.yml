@@ -30,9 +30,9 @@ jobs:
           key: ${{ runner.os }}-vcpkg-gtkmm4
           restore-keys: ${{ runner.os }}-vcpkg-
 
-      - name: Install vcpkg (Windows)
+      - name: Install dependencies (Windows)
         if: runner.os == 'Windows'
-        run: vcpkg install gtkmm[core]:x64-windows --recurse
+        run: vcpkg install --triplet x64-windows
 
       - name: Configure CMake
         run: >
