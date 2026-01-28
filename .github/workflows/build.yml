@@ -1,53 +1,50 @@
-name: CMake Build
+name: Build gtkmm 4 Project (Windows)
 
-on: [push, pull_request]
+on:
+  push:
+    branches: [ "main" ]
+  pull_request:
+    branches: [ "main" ]
 
 jobs:
-  build:
-    name: Build on ${{ matrix.os }}
-    runs-on: ${{ matrix.os }}
-    strategy:
-      matrix:
-        os: [ubuntu-latest, windows-latest]
+  build-windows:
+    runs-on: windows-latest
+
+    defaults:
+      run:
+        # Это критически важно: запускать команды именно в оболочке MINGW64
+        shell: msys2 {0}
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Install dependencies (Linux)
-        if: runner.os == 'Linux'
-        run: |
-          sudo apt-get update
-          sudo apt-get install -y libgtkmm-4.0-dev pkg-config cmake
-
-      - name: Restore vcpkg and cache
-        if: runner.os == 'Windows'
-        uses: actions/cache@v3
+      - name: Setup MSYS2 and Install Dependencies
+        uses: msys2/setup-msys2@v2
         with:
-          path: |
-            C:/vcpkg/installed
-            C:/Users/runneradmin/AppData/Local/vcpkg/archives
-          key: ${{ runner.os }}-vcpkg-gtkmm4
-          restore-keys: ${{ runner.os }}-vcpkg-
-
-      - name: Install dependencies (Windows)
-        if: runner.os == 'Windows'
-        run: vcpkg install --triplet x64-windows
+          msystem: MINGW64
+          update: true
+          # Полный список необходимых пакетов
+          install: >-
+            mingw-w64-x86_64-gcc
+            mingw-w64-x86_64-cmake
+            mingw-w64-x86_64-ninja
+            mingw-w64-x86_64-pkg-config
+            mingw-w64-x86_64-gtkmm-4.0
 
       - name: Configure CMake
-        run: >
-          cmake -S . -B build 
-          ${{ runner.os == 'Windows' && '-DCMAKE_TOOLCHAIN_FILE=C:/vcpkg/scripts/buildsystems/vcpkg.cmake -DVCPKG_TARGET_TRIPLET=x64-windows' || '' }}
+        run: |
+          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build
-        run: cmake --build build --config Release
+      - name: Build Project
+        run: |
+          cmake --build build
 
-      - name: Upload Build Artifact
+      - name: Upload Artifact
         uses: actions/upload-artifact@v4
         with:
-          name: DM-Office-${{ matrix.os }}
-          path: |
-            build/dmoffice
-            build/Release/dmoffice.exe
-          if-no-files-found: warn
+          name: gtkmm-app-windows
+          # Путь к скомпилированному .exe (замените на имя вашего проекта)
+          path: build/*.exe
+
 
