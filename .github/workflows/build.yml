@@ -1,5 +1,4 @@
-name: Build gtkmm 4 Project (Windows)
-
+name: build gtkmm 4 project (windows)
 on:
   push:
     branches: [ "main" ]
@@ -9,22 +8,18 @@ on:
 jobs:
   build-windows:
     runs-on: windows-latest
-
     defaults:
       run:
-        # Это критически важно: запускать команды именно в оболочке MINGW64
         shell: msys2 {0}
-
     steps:
-      - name: Checkout code
+      - name: checkout code
         uses: actions/checkout@v4
 
-      - name: Setup MSYS2 and Install Dependencies
+      - name: setup msys2 and install dependencies
         uses: msys2/setup-msys2@v2
         with:
-          msystem: MINGW64
+          msystem: mingw64
           update: true
-          # Полный список необходимых пакетов
           install: >-
             mingw-w64-x86_64-gcc
             mingw-w64-x86_64-cmake
@@ -32,19 +27,20 @@ jobs:
             mingw-w64-x86_64-pkg-config
             mingw-w64-x86_64-gtkmm-4.0
 
-      - name: Configure CMake
-        run: |
-          cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
+      - name: configure cmake
+        run: cmake -G Ninja -B build -DCMAKE_BUILD_TYPE=Release
 
-      - name: Build Project
-        run: |
-          cmake --build build
+      - name: build project
+        run: cmake --build build
 
-      - name: Upload Artifact
+      - name: collect dependencies
+        run: |
+          # Находим все зависимости через ldd и копируем их в папку build
+          ldd build/*.exe | grep /mingw64/bin/ | sed -e 's/.*=> \(\/mingw64\/bin\/[^ ]*\).*/\1/' | xargs -I{} cp -n {} build/
+
+      - name: upload artifact
         uses: actions/upload-artifact@v4
         with:
           name: gtkmm-app-windows
-          # Путь к скомпилированному .exe (замените на имя вашего проекта)
-          path: build/*.exe
-
-
+          # Теперь загружаем всю папку со всеми DLL
+          path: build/
