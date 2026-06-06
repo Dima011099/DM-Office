@@ -1,25 +1,29 @@
-// Сonnects the standard input/output stream for error handling
 #include <iostream>
 
-// Application Window Class Header File
 #include "AppWin.h"
 
-// Unique identifier of the application by default
+// Unique application identifier required for the OS desktop environment.
+// Used by D-Bus / Wayland / X11 for single-instance management and desktop file integration.
 constexpr auto DEFAULT_APP_ID = "org.dm.dmoffice";
 
-// DEFAULT_WIN_WIDTH and DEFAULT_WIN_HEIGHT set the default size of the main window.
+// Base UI layout dimensions. 
+// Chosen as a reasonable default for standard desktop resolutions (1080p and scaling factor 1x).
 constexpr int DEFAULT_WIN_WIDTH = 940;
 constexpr int DEFAULT_WIN_HEIGHT = 640;
 
 
 int main(int argc, char* argv[])
 {
+    // RAII-compliant entry point. Standard library exceptions from gtkmm/glibmm are caught here.
     try
     {
-        // Сreating an instance of a GTK application
+        // Initializes Gtkmm runtime, registers the application ID with the system session bus,
+        // and handles standard CLI arguments (e.g., --display, --g-fatal-warnings).
         auto app = Gtk::Application::create(DEFAULT_APP_ID);
 
-        // An AppWin window is created and the event loop is started
+        // Instantiates the main window via RAII, binds it to the application lifecycle,
+        // and blocks the main thread by starting the GLib/Gtk event loop.
+        // Returns the exit code directly to the OS upon window closure.
         return app->make_window_and_run<AppWin>(
             argc, 
             argv,
@@ -28,6 +32,8 @@ int main(int argc, char* argv[])
         );
     }catch (const std::exception& e)
     {
+        // Critical initialization or runtime failure fallback. 
+        // Logged to stderr as the UI environment might not be available or stable at this point.
         std::cerr << "Error: " << e.what() << std::endl;
         return 1;
     }
